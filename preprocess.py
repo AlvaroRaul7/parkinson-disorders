@@ -3,6 +3,7 @@
 
 import dicom2nifti
 import ants
+import antspynet
 
 #Declaration of variables
 
@@ -33,7 +34,7 @@ def get_header(path):
 # Function to denoise image using ANTs
 def denoise_image(path):
     img= ants.image_read(path) # Read nii image and convert it to an ANTs array
-    denoise= ants.denoise_image(img, noise_model='gaussian') 
+    denoise= ants.denoise_image(img, noise_model='gaussian', verbose=True) 
     ants.image_write(denoise,denoise_path) #Write image in a specific path 
 
 def bias_field_correction(path):
@@ -41,5 +42,9 @@ def bias_field_correction(path):
     bias_correction = ants.n4_bias_field_correction(img)
     ants.image_write(bias_correction, bias_correction_path)
 
-
+#Function to perform brain extraction using U-net and ANTs-based training data. 
+def brain_extraction(path):
+    img= ants.image_read(example_path)
+    probability_brain_mask = antspynet.brain_extraction(img, modality="t1", verbose=True) #T1-weighted MRI—ANTs-trained
+    print(probability_brain_mask)
 
