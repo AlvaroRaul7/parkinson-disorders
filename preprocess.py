@@ -8,7 +8,8 @@ import antspynet
 import intensity_normalization
 import nibabel as nib
 import numpy as np
-
+from deepbrain import Extractor
+import subprocess
 #Declaration of variables
 
 example_path='./niidata/6_sag_3d_fspgr_bravo_straight.nii.gz'
@@ -59,19 +60,17 @@ def image_registration(path, normalized_path):
 #Function used to perform brain extraction using U-net and ANTs-based training data
 #Note: returns a probability matrix mask (ants)
 def brain_extraction(path, brain_path):
-    img= ants.image_read(example_path)
-    probability_brain_mask = antspynet.brain_extraction(img, modality="t1", verbose=True) #T1-weighted MRI—ANTs-trained
-    probability_brain_mask = probability_brain_mask.numpy()
-    matrix= img.numpy()
-    dot_prod = np.dot(matrix,probability_brain_mask)
-    extracted_brain = ants.from_numpy(dot_prod)
-    
-    ants.image_write(extracted_brain,brain_path)
+    command = subprocess.call('deepbrain-extractor -i '+ path +' -o '+ brain_path, shell = True)
+    print(command)
+    if command == 0 :
+        print("Good")
+     
     
 
 #Function used to normalize MR images using zscore distribution without a mask
 def normalize_img(path, normalize_path):
-    img = nib.load(example_path)
+    
+    img = nib.load(path)
     normalized_image= intensity_normalization.normalize.zscore.zscore_normalize(img, mask=None)
     nib.save(normalized_image, normalize_path)
 
@@ -89,5 +88,5 @@ def calculate_values(path):
 denoise_image(example_path,'./niidata/denoise.nii.gz')
 bias_field_correction('./niidata/denoise.nii.gz','./niidata/bias.nii.gz')
 image_registration('./niidata/bias.nii.gz','./niidata/normalized.nii.gz')
-brain_extraction('./niidata/normalized.nii.gz','./niidata/extracted.nii.gz')
-normalize_img('./niidata/extracted.nii.gz', './niidata/preprocessed.nii.gz')
+brain_extraction('./niidata/normalized.nii.gz','./niidata/')
+normalize_img('./niidata/brain.nii', './niidata/preprocessed.nii.gz')
