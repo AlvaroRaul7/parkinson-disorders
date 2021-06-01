@@ -6,4 +6,5 @@ Development of a machine learning model to detect impulse control disorders  rel
 
     - Python 3.8
     - dicom2nifti
+    - antspynet (Install separately using source code)
 

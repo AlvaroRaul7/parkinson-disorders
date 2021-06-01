@@ -61,8 +61,12 @@ def image_registration(path, normalized_path):
 def brain_extraction(path, brain_path):
     img= ants.image_read(example_path)
     probability_brain_mask = antspynet.brain_extraction(img, modality="t1", verbose=True) #T1-weighted MRI—ANTs-trained
-    print(probability_brain_mask)
-    ants.image_write(probability_brain_mask,brain_path)
+    probability_brain_mask = probability_brain_mask.numpy()
+    matrix= img.numpy()
+    dot_prod = np.dot(matrix,probability_brain_mask)
+    extracted_brain = ants.from_numpy(dot_prod)
+    
+    ants.image_write(extracted_brain,brain_path)
     
 
 #Function used to normalize MR images using zscore distribution without a mask
